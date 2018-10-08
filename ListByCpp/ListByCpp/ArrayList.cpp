@@ -148,7 +148,7 @@ void ArrayList<T, defaultCapacity>::inflate(int minCapacity)
 }
 
 template <class T, int defaultCapacity>
-ArrayList<T, defaultCapacity>::ArrayList(const ArrayList&)
+ArrayList<T, defaultCapacity>::ArrayList(const ArrayList& arr):len(arr.len),capacity(arr.capacity),arr(arr.arr)
 {
 }
 

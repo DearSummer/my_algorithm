@@ -26,7 +26,7 @@ private:
 	void ensureCapacityInternal(int minCapacity);
 	void ensureExplicitCapacity(int minCapacity);
 	void inflate(int minCapacity);
-	ArrayList(const ArrayList&);
+	ArrayList(const ArrayList& arr);
 };
 
 
