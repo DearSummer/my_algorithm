@@ -17,7 +17,6 @@ public class Main {
         minStack.push(2);
         minStack.push(7);
 
-
         try {
             System.out.println("min value : " + minStack.getMinValue());
             minStack.pop();
