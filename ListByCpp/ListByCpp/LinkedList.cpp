@@ -250,12 +250,13 @@ LinkedList<T>::~LinkedList()
 template <typename T>
 bool LinkedList<T>::iterator::hasNext()
 {
-	return index < ll.size();
+	return cur->next != nullptr;
 }
 
 template <typename T>
 T& LinkedList<T>::iterator::next()
 {
-	return *ll.get(index++);
+	cur = cur->next;
+	return cur->element;
 }
 

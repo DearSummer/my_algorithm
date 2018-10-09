@@ -57,9 +57,12 @@ public:
 	class iterator
 	{
 		LinkedList& ll;
-		int index;
+		Node * cur;
+
+		friend Node * LinkedList::getNode(int index);
+
 	public:
-		explicit iterator(LinkedList& ll) :ll(ll),index(0)
+		explicit iterator(LinkedList& ll) :ll(ll),cur(getNode(0))
 		{			
 		}
 
