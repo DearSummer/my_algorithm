@@ -62,8 +62,8 @@ public:
 		friend Node * LinkedList::getNode(int index);
 
 	public:
-		explicit iterator(LinkedList& ll) :ll(ll),cur(getNode(0))
-		{			
+		explicit iterator(LinkedList& ll) :ll(ll),cur(ll.getNode(0))
+		{					
 		}
 
 		bool hasNext();

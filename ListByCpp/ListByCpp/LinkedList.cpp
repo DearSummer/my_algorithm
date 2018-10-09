@@ -84,7 +84,7 @@ typename LinkedList<T>::Node* LinkedList<T>::getNode(int index)
 
 	checkIsValidIndex(index);
 
-	Node * target = nullptr;
+	Node * target = head;
 	if (index > (len >> 1))
 	{
 		target = tail;
@@ -250,7 +250,7 @@ LinkedList<T>::~LinkedList()
 template <typename T>
 bool LinkedList<T>::iterator::hasNext()
 {
-	return cur->next != nullptr;
+	return cur != nullptr && cur->next != nullptr;
 }
 
 template <typename T>

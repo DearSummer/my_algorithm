@@ -5,9 +5,6 @@
 #include <string>
 #include <fstream>
 
-#define FOR_EACH(e,iterator) \
-	while(iterator.hasNext()) \
-	{ e = iterator.next() }  \
 
 using namespace std;
 int main()
