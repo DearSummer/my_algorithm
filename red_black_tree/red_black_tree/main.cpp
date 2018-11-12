@@ -31,5 +31,6 @@ int main()
 
 	int b;
 	std::cin >> b;
+
 	return 0;
 }
