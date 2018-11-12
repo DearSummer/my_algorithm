@@ -1,6 +1,5 @@
 #pragma once
 #include "RBNode.h"
-#include <string>
 
 class RBTree
 {
@@ -33,6 +32,11 @@ public:
 	void remove(int value);
 
 	void clear() const;
+
+	static RBNode * next(RBNode * node);
+	static RBNode * prev(RBNode * node);
+
+	RBNode * getRoot() const;
 
 	void perorderPrint() const;
 	void midorderPrint() const;

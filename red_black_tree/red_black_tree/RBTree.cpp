@@ -118,26 +118,28 @@ void RBTree::insertFixUp(RBNode * n)
 		//若父节点是祖父节点的左节点
 		if (parent == grandfather->left)
 		{
-			RBNode * uncle = grandfather->right;
-
-			//case 1 : 叔叔节点也是红色的
-			if (uncle != nullptr && uncle->red)
 			{
-				//将父亲和叔叔节点涂黑
-				parent->red = false;
-				uncle->red = false;
+				 RBNode * uncle = grandfather->right;
 
-				//把祖父节点涂红
-				grandfather->red = true;
+				//case 1 : 叔叔节点也是红色的
+				if (uncle && uncle->red)
+				{
+					//将父亲和叔叔节点涂黑
+					parent->red = false;
+					uncle->red = false;
 
-				//将节点放置成祖父节点
-				n = grandfather;
+					//把祖父节点涂红
+					grandfather->red = true;
 
-				continue;
+					//将节点放置成祖父节点
+					n = grandfather;
+
+					continue;
+				}
 			}
 
 			//case 2 : 叔叔节点是黑色的,而且当前节点是右节点
-			if (n == parent->right && uncle != nullptr && !uncle->red)
+			if (n == parent->right /* && uncle != nullptr && !uncle->red */ )
 			{
 				//从父节点处左旋
 				leftRotation(parent);
@@ -156,15 +158,17 @@ void RBTree::insertFixUp(RBNode * n)
 		}
 		else
 		{
-			//右节点和左节点的操作是一样的
-			RBNode * uncle = grandfather->left;
-			if(uncle != nullptr && uncle->red)
 			{
-				parent->red = false;
-				uncle->red = false;
-				grandfather->red = true;
-				n = grandfather;
-				continue;
+				//右节点和左节点的操作是一样的
+				RBNode * uncle = grandfather->left;
+				if (uncle  && uncle->red)
+				{
+					parent->red = false;
+					uncle->red = false;
+					grandfather->red = true;
+					n = grandfather;
+					continue;
+				}
 			}
 
 			if(n == parent->left)
@@ -232,8 +236,12 @@ void RBTree::remove(RBNode * node)
 	RBNode * parent;
 	bool red;
 
+	if (!node->right)
+		child = node->left;
+	else if (!node->left)
+		child = node->right;
 	//case 1 : 被删除的节点的左右节点都不为空的情况
-	if(node->left != nullptr && node->right != nullptr)
+	else
 	{
 		//先找出被删除节点的后继节点,使用它来代替自己
 		RBNode * replace = node;
@@ -290,47 +298,28 @@ void RBTree::remove(RBNode * node)
 		return;
 	}
 
+	parent = node->parent;
+	red = node->red;
+
 	//case 2 :被删除节点没有子节点,直接删除这个节点
-	if (node->left == nullptr || node->right == nullptr)
-	{
-		child = node->left;
-		parent = node->parent;
-		if (node->parent->left == node)
-			node->parent->left = nullptr;
-		else
-			node->parent->right = nullptr;
-
-
-		delete node;
-		node = nullptr;
-
-		return;
-	}
-
 	//case 3 : 被删除节点有唯一子节点
-	if(node->left != nullptr)
-	{
-		child = node->left;
-		parent = node->parent;
-		child->parent = parent;
-		if (parent->left == node)
-			parent->left = child;
-		else
-			parent->right = child;
-	}
-	else
-	{
-		child = node->right;
-		parent = node->parent;
+	//两种情况可以一并处理
 
+	if (child)
 		child->parent = parent;
+	if (parent)
+	{
 		if (parent->right == node)
 			parent->right = child;
 		else
-			parent->right = child;
+			parent->left = child;
 	}
+	else
+		root = child;
+	
 
-	removeFixUp(child, parent);
+	if (!red)
+		removeFixUp(child, parent);
 
 	delete node;
 	node = nullptr;
@@ -340,7 +329,7 @@ void RBTree::removeFixUp(RBNode * node, RBNode * parent)
 {
 	//other 是node的兄弟节点
 	RBNode *  other;
-	while((node == nullptr || !node->red) && node != root)
+	while((!node || !node->red) && node != root)
 	{
 		//若是左节点,else 则是相反
 		if(parent->left == node)
@@ -356,9 +345,9 @@ void RBTree::removeFixUp(RBNode * node, RBNode * parent)
 			}
 
 			//case 2 : other 是黑色的,other的两个子节点也是黑色的
-			if(!other->red && 
-				(other->left == nullptr || !other->left->red) &&
-				(other->right == nullptr || !other->right->red))
+			if(/*!other->red && */ 
+				(!other->left || !other->left->red) &&
+				(!other->right|| !other->right->red))
 			{
 				other->red = true;
 				node = parent;
@@ -366,8 +355,8 @@ void RBTree::removeFixUp(RBNode * node, RBNode * parent)
 			}
 			else
 			{
-				//若other的两个子节点,右边是黑色左边是红色
-				if(other->right == nullptr || !other->right->red)
+				//case 3 :若other的两个子节点,右边是黑色左边是红色(case 3 是为了将情况转化为case 4 进行解决问题)
+				if(!other->right|| !other->right->red)
 				{
 					other->left->red = false;
 					other->red = true;
@@ -375,7 +364,7 @@ void RBTree::removeFixUp(RBNode * node, RBNode * parent)
 					other = parent->right;
 				}
 
-				//若other是黑色,右节点是红色(左边任意颜色)
+				//case 4 :若other是黑色,右节点是红色(左边任意颜色)
 				other->red = parent->red;
 				parent->red = false;
 				other->right->red = false;
@@ -398,7 +387,7 @@ void RBTree::removeFixUp(RBNode * node, RBNode * parent)
 			}
 
 				
-			if(!other->red &&
+			if(/*!other->red && */
 				(other->left == nullptr || !other->left->red ) &&
 				(other->right == nullptr || !other->right->red))
 			{
@@ -426,7 +415,7 @@ void RBTree::removeFixUp(RBNode * node, RBNode * parent)
 		}
 	}
 
-	if (node != nullptr)
+	if (node)
 		node->red = false;
 
 }
@@ -497,6 +486,65 @@ void RBTree::remove(int value)
 void RBTree::clear() const
 {
 	destory(root);
+}
+
+RBNode * RBTree::next(RBNode * node)
+{
+	RBNode * parent;
+	if (!node || node->parent == node)
+		return nullptr;
+
+	/**
+	 * 若存在右节点,那么下一个节点一定就是右节点当中的最左节点
+	 */
+	if(node->right)
+	{
+		node = node->right;
+		while (node->left)
+			node = node->left;
+
+		return node;
+	}
+
+	/**
+	 * 若该节点不存在右节点
+	 * 若我们向下和向左查找都会使得节点大小越来越小,但是下一个节点应该是比当前节点大的一个最小的节点
+	 * 所以我们要向上查找这个树,若当前节点是其父亲节点的右孩子就继续找,直到当前节点是其父亲节点的左孩子位置
+	 * (因为若当前节点是父亲节点的右孩子说明当前节点比父亲节点大,第一个遇到的是父亲节点的左孩子的时候,这个父亲节点就是下一个节点)
+	 */
+	while ((parent = node->parent) != nullptr && node == parent->right)
+		node = parent;
+
+	return parent;
+}
+
+RBNode * RBTree::prev(RBNode * node)
+{
+	//寻找方法同next
+	RBNode * parent;
+
+	if (!node || node->parent == node)
+		return nullptr;
+
+	if(node->left)
+	{
+		node = node->left;
+		while (node->right)
+			node = node->right;
+
+		return  node;
+	}
+
+
+	while ((parent = node->parent) != nullptr && node == parent->left)
+		node = parent;
+
+	return parent;
+}
+
+RBNode * RBTree::getRoot() const
+{
+	return root;
 }
 
 void RBTree::perorderPrint() const
